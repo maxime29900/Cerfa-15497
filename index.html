@@ -1,0 +1,74 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><title>CERFA 15497*04</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial;margin:0;background:#f2f2f7;color:#111}main{max-width:650px;margin:auto;padding:18px}h1{font-size:24px}label{display:block;font-weight:600;margin-top:14px}input,select,textarea{width:100%;box-sizing:border-box;font-size:17px;padding:12px;border:1px solid #ccc;border-radius:10px;background:#fff}textarea{min-height:80px}button{width:100%;margin-top:20px;padding:15px;border:0;border-radius:12px;font-size:18px;font-weight:700;background:#007aff;color:#fff}.box{background:#fff;padding:15px;border-radius:14px;margin:12px 0}.small{font-size:13px;color:#666}#status{margin-top:12px;white-space:pre-wrap}</style></head><body><main><h1>📄 CERFA 15497*04</h1><div class="box"><div class="small">Concarnoise de froid · 22 rue de Penanguer · SIRET 498 803 360 00029 · Attestation 17613</div></div><label>Date intervention</label><input id="date" type="date"><label>Client / détenteur</label><input id="client"><label>Adresse / SIRET client</label><textarea id="det"></textarea><label>Équipement / identification</label><input id="equip"><label>Fluide frigorigène</label>
+<select id="fluide">
+<option value="R449A">R449A — GWP 1396</option>
+<option value="R452A">R452A — GWP 2139</option>
+<option value="R404A">R404A — GWP 3922</option>
+<option value="R507">R507 — GWP 3985</option>
+<option value="R410A">R410A — GWP 2088</option>
+<option value="R407C">R407C — GWP 1774</option>
+<option value="R134a">R134a — GWP 1430</option>
+<option value="R32">R32 — GWP 675</option>
+<option value="R448A">R448A — GWP 1386</option>
+<option value="R513A">R513A — GWP 629</option>
+<option value="R450A">R450A — GWP 601</option>
+<option value="R454B">R454B — GWP 465</option>
+<option value="R454C">R454C — GWP 146</option>
+<option value="R1234yf">R1234yf — GWP 0.501</option>
+<option value="R1234ze(E)">R1234ze(E) — GWP 1.37</option>
+<option value="R290">R290 — GWP 0.02</option>
+<option value="R744">R744 (CO₂) — GWP 1</option>
+<option value="R717">R717 (NH₃) — GWP 0</option>
+<option value="AUTRE">Autre fluide…</option>
+</select>
+<input id="fluideAutre" placeholder="Nom du fluide si 'Autre'" style="display:none;margin-top:8px">
+<div id="gwpInfo" class="small"></div>
+<label>Charge totale de l'équipement (kg)</label><input id="charge" type="number" step="0.001" min="0">
+<label>Tonnes équivalent CO₂ <span class="small">(calcul automatique)</span></label><input id="teq" type="text" readonly>
+<label>Nature de l'intervention</label><select id="nature"><option>Mise en service</option><option>Assemblage</option><option>Modification</option><option>Maintenance</option><option>Contrôle étanchéité périodique</option><option>Contrôle étanchéité non périodique</option><option>Démantèlement</option><option>Autre</option></select>
+<label>Détection permanente</label><select id="perm"><option>Non</option><option>Oui</option></select>
+<label>Fuite constatée</label><select id="fuite"><option>Non</option><option>Oui</option></select>
+<label>Quantité chargée totale (kg)</label><input id="qcharge" type="number" step="0.001">
+<label>Dont fluide vierge A (kg)</label><input id="qa" type="number" step="0.001">
+<label>Dont fluide recyclé B (kg)</label><input id="qb" type="number" step="0.001">
+<label>Dont fluide régénéré C (kg)</label><input id="qc" type="number" step="0.001">
+<label>Quantité récupérée totale (kg)</label><input id="qrec" type="number" step="0.001">
+<label>Dont destiné au traitement D (kg)</label><input id="qd" type="number" step="0.001">
+<label>Dont conservé pour réutilisation E (kg)</label><input id="qe" type="number" step="0.001">
+<label>BSFF / Trackdéchets</label><input id="bsff">
+<label>Identification des contenants</label><input id="cont">
+<label>Destination du fluide récupéré</label><textarea id="dest"></textarea>
+<label>Observations</label><textarea id="obs"></textarea>
+<div class="box">
+<label style="margin-top:0">Signature du technicien</label>
+<canvas id="sig" width="900" height="240" style="width:100%;height:160px;background:#fff;border:1px solid #ccc;border-radius:10px;touch-action:none"></canvas>
+<button type="button" id="clearSig" style="background:#777;margin-top:8px">EFFACER LA SIGNATURE</button>
+<div class="small">Dessine ta signature une seule fois. Elle sera mémorisée sur cet appareil et insérée automatiquement dans le CERFA.</div>
+</div>
+<button id="go">GÉNÉRER LE CERFA PDF</button><div id="status"></div><p class="small">Le numéro de fiche est automatique. Les tonnes équivalent CO₂ sont calculées selon le GWP du fluide sélectionné.</p></main><script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script><script>
+const TEMPLATE_URL='CERFA_15497_Concarnoise_de_froid_MASTER.pdf';
+const GWP={R449A:1396,R452A:2139,R404A:3922,R507:3985,R410A:2088,R407C:1774,R134a:1430,R32:675,R448A:1386,R513A:629,R450A:601,R454B:465,R454C:146,R1234yf:0.501,'R1234ze(E)':1.37,R290:0.02,R744:1,R717:0};
+let seq=Number(localStorage.getItem('cerfa_seq')||0);
+function v(id){const e=document.getElementById(id);return e?e.value:''}
+function num(id){const n=parseFloat(v(id));return Number.isFinite(n)?n:0}
+function nextNo(date){const y=new Date(date||Date.now()).getFullYear();seq++;localStorage.setItem('cerfa_seq',seq);return y+'-'+String(seq).padStart(3,'0')}
+function set(data,k,val){if(val!==''&&val!=null){try{data.getTextField(k).setText(String(val))}catch(e){}}}
+function btn(form,k,on){if(!k)return;try{form.getCheckBox(k)[on?'check':'uncheck']()}catch(e){}}
+function currentFluid(){return v('fluide')==='AUTRE'?v('fluideAutre').trim():v('fluide')}
+function updateCO2(){const f=currentFluid();const gwp=GWP[f];const kg=num('charge');const teq=(gwp==null||!kg)?0:kg*gwp/1000;document.getElementById('teq').value=(gwp==null?'':teq.toFixed(3));document.getElementById('gwpInfo').textContent=gwp==null?'GWP inconnu — saisis un fluide connu pour un calcul automatique.':'GWP utilisé : '+gwp+' → '+teq.toFixed(3)+' tCO₂e';}
+const fluid=document.getElementById('fluide');fluid.addEventListener('change',()=>{document.getElementById('fluideAutre').style.display=fluid.value==='AUTRE'?'block':'none';updateCO2()});document.getElementById('fluideAutre').addEventListener('input',updateCO2);document.getElementById('charge').addEventListener('input',updateCO2);
+// Signature canvas, mémorisée localement
+const canvas=document.getElementById('sig'),ctx=canvas.getContext('2d');ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';let drawing=false,hasSig=false;
+function loadSig(){const s=localStorage.getItem('cerfa_signature');if(!s)return;const im=new Image();im.onload=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(im,0,0);hasSig=true};im.src=s}
+function pos(e){const r=canvas.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*canvas.width/r.width,y:(t.clientY-r.top)*canvas.height/r.height}}
+function down(e){e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)}
+function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();hasSig=true}
+function up(){if(!drawing)return;drawing=false;localStorage.setItem('cerfa_signature',canvas.toDataURL('image/png'))}
+canvas.addEventListener('mousedown',down);canvas.addEventListener('mousemove',move);window.addEventListener('mouseup',up);canvas.addEventListener('touchstart',down,{passive:false});canvas.addEventListener('touchmove',move,{passive:false});canvas.addEventListener('touchend',up);document.getElementById('clearSig').addEventListener('click',()=>{ctx.clearRect(0,0,canvas.width,canvas.height);hasSig=false;localStorage.removeItem('cerfa_signature')});loadSig();updateCO2();
+async function gen(){const st=document.getElementById('status');st.textContent='Génération…';try{if(!hasSig)throw new Error('Ajoute ta signature dans le cadre avant de générer.');const bytes=new Uint8Array(await (await fetch(TEMPLATE_URL, {cache:'no-store'})).arrayBuffer());const pdf=await PDFLib.PDFDocument.load(bytes);const form=pdf.getForm();const date=v('date')||new Date().toISOString().slice(0,10);const [y,m,d]=date.split('-');const no=nextNo(date);const fluidName=currentFluid();
+set(form,'Fiche_no',no);set(form,'Operateur','Concarnoise de froid\n22 rue de Penanguer\nSIRET : 498 803 360 00029');set(form,'Attestation_no','17613');set(form,'Detenteur',v('client')+'\n'+v('det'));set(form,'Equipement_ID',v('equip'));set(form,'Equipement_Fluide',fluidName);set(form,'Equipement_Charge',num('charge')?num('charge').toFixed(3):'');set(form,'Equipement_teqCO2',v('teq'));set(form,'Autre',v('nature')==='Autre'?'Autre':'');set(form,'Controle_Jour',d);set(form,'Controle_Mois',m);set(form,'Controle_Annee',y);set(form,'11_Quantite',num('qcharge')?num('qcharge').toFixed(3):'');set(form,'11_QA',num('qa')?num('qa').toFixed(3):'');set(form,'11_QB',num('qb')?num('qb').toFixed(3):'');set(form,'11_QC',num('qc')?num('qc').toFixed(3):'');set(form,'11_QDE',num('qrec')?num('qrec').toFixed(3):'');set(form,'11_QD',num('qd')?num('qd').toFixed(3):'');set(form,'11_QE',num('qe')?num('qe').toFixed(3):'');set(form,'11_BSFF',v('bsff'));set(form,'11_Contenant_ID',v('cont'));set(form,'13_Instal',v('dest'));set(form,'14_Observations',v('obs'));set(form,'Sign_Operateur_Nom','Le Brun Maxime');set(form,'Sign_Operateur_Qualite','Technicien frigoriste');set(form,'Sign_Operateur_Date',d+'/'+m+'/'+y);
+const map={'Assemblage':'Case_Assemblage','Mise en service':'Case_MiseService','Modification':'Case_Modif','Maintenance':'Case_Maintenance','Contrôle étanchéité périodique':'Case_CtrlPerio','Contrôle étanchéité non périodique':'Case_CtrlNonPerio','Démantèlement':'Case_Demantel','Autre':'Case_Autre'};btn(form,map[v('nature')],true);btn(form,'Bouton_Oui',v('perm')==='Oui');btn(form,'Case_Fuite_Oui',v('fuite')==='Oui');btn(form,'Case_Fuite_Non',v('fuite')==='Non');
+// Insère la signature dessinée dans la case « Date et signature » de l'opérateur, à droite de la date.
+const sigBytes=Uint8Array.from(atob(localStorage.getItem('cerfa_signature').split(',')[1]),c=>c.charCodeAt(0));const sigImg=await pdf.embedPng(sigBytes);const page=pdf.getPages()[0];page.drawImage(sigImg,{x:205,y:43,width:105,height:28});
+const out=await pdf.save();const blob=new Blob([out],{type:'application/pdf'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=no+' - '+(v('client')||'Client')+'.pdf';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);st.textContent='✅ '+no+' généré — '+v('teq')+' tCO₂e. PDF téléchargé.'}catch(e){console.error(e);st.textContent='❌ Erreur : '+e.message}}
+document.getElementById('go').addEventListener('click',gen);document.getElementById('date').value=new Date().toISOString().slice(0,10);
+</script></body></html>

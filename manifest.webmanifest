@@ -1,0 +1,9 @@
+{
+  "name":"CERFA 15497 - Concarnoise de froid",
+  "short_name":"CERFA 15497",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#ffffff",
+  "theme_color":"#1877f2",
+  "icons":[]
+}
